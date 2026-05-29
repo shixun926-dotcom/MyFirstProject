@@ -1,6 +1,7 @@
 package com.sky.service.impl;
 
 import com.sky.constant.MessageConstant;
+import com.sky.constant.PasswordConstant;
 import com.sky.constant.StatusConstant;
 import com.sky.dto.EmployeeLoginDTO;
 import com.sky.entity.Employee;
@@ -11,7 +12,11 @@ import com.sky.mapper.EmployeeMapper;
 import com.sky.service.EmployeeService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.util.DigestUtils;
+import com.sky.dto.EmployeeDTO;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.time.LocalDateTime;
 
 @Service
 public class EmployeeServiceImpl implements EmployeeService {
@@ -29,29 +34,65 @@ public class EmployeeServiceImpl implements EmployeeService {
         String username = employeeLoginDTO.getUsername();
         String password = employeeLoginDTO.getPassword();
 
-        //1、根据用户名查询数据库中的数据
+        // 1、根据用户名查询数据库中的数据
         Employee employee = employeeMapper.getByUsername(username);
 
-        //2、处理各种异常情况（用户名不存在、密码不对、账号被锁定）
+        // 2、处理各种异常情况（用户名不存在、密码不对、账号被锁定）
         if (employee == null) {
-            //账号不存在
+            // 账号不存在
             throw new AccountNotFoundException(MessageConstant.ACCOUNT_NOT_FOUND);
         }
 
-        //密码比对
-        // TODO 后期需要进行md5加密，然后再进行比对
-        if (!password.equals(employee.getPassword())) {
-            //密码错误
+        // 密码比对
+        BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
+        if (!encoder.matches(password, employee.getPassword())) {
+            // 密码错误
             throw new PasswordErrorException(MessageConstant.PASSWORD_ERROR);
         }
 
         if (employee.getStatus() == StatusConstant.DISABLE) {
-            //账号被锁定
+            // 账号被锁定
             throw new AccountLockedException(MessageConstant.ACCOUNT_LOCKED);
         }
 
-        //3、返回实体对象
+        // 3、返回实体对象
         return employee;
+    }
+
+    /**
+     * 新增员工
+     *
+     * @param employeeDTO
+     */
+    @Transactional
+    public void save(EmployeeDTO employeeDTO) {
+        Employee employee = new Employee();
+
+        // 对象属性拷贝
+        employee.setUsername(employeeDTO.getUsername());
+        employee.setName(employeeDTO.getName());
+        employee.setPhone(employeeDTO.getPhone());
+        employee.setSex(employeeDTO.getSex());
+        employee.setIdNumber(employeeDTO.getIdNumber());
+
+        // 使用BCryptPasswordEncoder对密码进行加密,默认使用初始密码
+        BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
+        String encodePassword = encoder.encode(PasswordConstant.DEFAULT_PASSWORD);
+        employee.setPassword(encodePassword);
+
+        // 设置状态为1（启用状态）
+        employee.setStatus(StatusConstant.ENABLE);
+
+        // 设置创建时间和修改时间
+        employee.setCreateTime(LocalDateTime.now());
+        employee.setUpdateTime(LocalDateTime.now());
+
+        // 设置创建人和修改人（这里简化处理，实际项目中应该从上下文获取当前登录用户ID）
+        //TODO 后期需要更改为当前登录用户ID
+        employee.setCreateUser(10L);
+        employee.setUpdateUser(10L);
+
+        employeeMapper.insert(employee);
     }
 
 }
