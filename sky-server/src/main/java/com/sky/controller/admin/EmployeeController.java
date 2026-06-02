@@ -21,6 +21,8 @@ import org.springframework.web.bind.annotation.*;
 import java.util.HashMap;
 import java.util.Map;
 
+//import static sun.security.ssl.SSLLogger.info;
+
 /**
  * 员工管理
  */
@@ -114,6 +116,21 @@ public class EmployeeController {
         PageResult pageResult = employeeService.pageQuery(employeePageQueryDTO);
         return Result.success(pageResult);
 
+    }
+
+    /**
+     * 启用禁用员工账号
+     * @param status
+     * @param id
+     * @return
+     */
+
+    @PostMapping("status/{status}")
+    @ApiOperation("启用禁用员工账号")
+    public Result startORStop(@PathVariable Integer status ,Long id ) {
+        log.info("启用禁用员工账号: {} , {} " ,status,id );
+        employeeService.startOrStop(status,id);
+       return Result.success();
     }
 
 }
