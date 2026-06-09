@@ -49,6 +49,14 @@ public interface DishMapper {
     Dish getById(Long id);
 
     /**
+     * 根据主键查询菜品（包含分类名称）
+     * @param id
+     * @return
+     */
+    @Select("select d.*, c.name as categoryName from dish d left outer join category c on d.category_id = c.id where d.id = #{id}")
+    DishVO getDishVOById(Long id);
+
+    /**
      * 根据主键来删除菜品数据
      * @param id
      */
