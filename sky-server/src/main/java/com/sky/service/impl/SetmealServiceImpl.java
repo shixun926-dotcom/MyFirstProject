@@ -4,8 +4,11 @@ import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import com.sky.dto.SetmealDTO;
 import com.sky.dto.SetmealPageQueryDTO;
+import com.sky.constant.MessageConstant;
+import com.sky.constant.StatusConstant;
 import com.sky.entity.Setmeal;
 import com.sky.entity.SetmealDish;
+import com.sky.exception.DeletionNotAllowedException;
 import com.sky.mapper.SetmealDishMapper;
 import com.sky.mapper.SetmealMapper;
 import com.sky.result.PageResult;
@@ -62,6 +65,42 @@ public class SetmealServiceImpl implements SetmealService {
         PageHelper.startPage(setmealPageQueryDTO.getPage(), setmealPageQueryDTO.getPageSize());
         Page<SetmealVO> page = setmealMapper.pageQuery(setmealPageQueryDTO);
         return new PageResult(page.getTotal(), page.getResult());
+    }
+
+    /**
+     * 批量删除套餐
+     * @param ids
+     */
+    @Transactional
+    public void deleteBatch(String ids) {
+        String[] idArray = ids.split(",");
+        for (String idStr : idArray) {
+            Long id = Long.parseLong(idStr);
+            Setmeal setmeal = setmealMapper.getById(id);
+            if (setmeal != null && setmeal.getStatus() == StatusConstant.ENABLE) {
+                throw new DeletionNotAllowedException(MessageConstant.SETMEAL_ON_SALE);
+            }
+        }
+        for (String idStr : idArray) {
+            Long id = Long.parseLong(idStr);
+            setmealDishMapper.deleteBySetmealId(id);
+            setmealMapper.deleteById(id);
+        }
+    }
+
+    /**
+     * 根据id查询套餐和套餐菜品关联关系
+     * @param id
+     * @return
+     */
+    public SetmealVO getByIdWithSetmealDish(Long id) {
+        SetmealVO setmealVO = setmealMapper.getByIdWithSetmealDish(id);
+        if (setmealVO == null) {
+            return new SetmealVO();
+        }
+        List<SetmealDish> setmealDishes = setmealDishMapper.getBySetmealId(id);
+        setmealVO.setSetmealDishes(setmealDishes);
+        return setmealVO;
     }
 
 }

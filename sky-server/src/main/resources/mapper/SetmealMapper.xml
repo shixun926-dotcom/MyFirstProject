@@ -25,4 +25,13 @@
         order by s.create_time desc
     </select>
 
+    <delete id="deleteById">
+        delete from setmeal where id = #{id}
+    </delete>
+
+    <select id="getByIdWithSetmealDish" resultType="com.sky.vo.SetmealVO">
+        select s.*, c.name as categoryName from setmeal s left outer join category c on s.category_id = c.id
+        where s.id = #{id}
+    </select>
+
 </mapper>

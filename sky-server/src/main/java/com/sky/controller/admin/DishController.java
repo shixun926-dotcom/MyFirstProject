@@ -64,6 +64,7 @@ public class DishController {
     }
 
     @GetMapping("/{id}")
+    @ApiOperation("根据菜品查询id")
     public Result<DishVO> getById(@PathVariable Long id){
         log.info("根据id查询菜品:{}",id);
         DishVO dishVO =  dishService.getByIdWithFlavor(id);

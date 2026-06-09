@@ -48,4 +48,15 @@ public class GlobalExceptionHandler {
 
     }
 
+    /**
+     * 捕获通用异常，便于排查问题
+     * @param ex
+     * @return
+     */
+    @ExceptionHandler
+    public Result exceptionHandler(Exception ex){
+        log.error("异常信息：", ex);
+        return Result.error(MessageConstant.UNKNOWN_ERROR);
+    }
+
 }
