@@ -42,4 +42,11 @@ public interface DishService {
      */
     void updateWithFlavor(DishDTO dishDTO);
 
+    /**
+     * 根据分类id查询启售中的菜品列表
+     * @param categoryId
+     * @return
+     */
+    List<DishVO> list(Long categoryId);
+
 }

@@ -50,4 +50,15 @@
         where id = #{id}
     </update>
 
+    <select id="list" resultType="com.sky.entity.Dish">
+        select * from dish
+        <where>
+            <if test="categoryId != null">
+                and category_id = #{categoryId}
+            </if>
+            and status = 1
+        </where>
+        order by create_time desc
+    </select>
+
 </mapper>

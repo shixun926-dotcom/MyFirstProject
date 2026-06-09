@@ -83,6 +83,19 @@ public class DishController {
         return Result.success();
     }
 
+    /**
+     * 根据分类id查询启售中的菜品列表
+     * @param categoryId
+     * @return
+     */
+    @GetMapping("/list")
+    @ApiOperation("根据分类id查询菜品列表")
+    public Result<List<DishVO>> list(Long categoryId) {
+        log.info("根据分类id查询菜品列表：{}", categoryId);
+        List<DishVO> list = dishService.list(categoryId);
+        return Result.success(list);
+    }
+
 
 
 

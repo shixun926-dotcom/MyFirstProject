@@ -169,4 +169,18 @@ public class DishServiceImpl implements DishService {
 
     }
 
+    /**
+     * 根据分类id查询启售中的菜品列表
+     * @param categoryId
+     * @return
+     */
+    public List<DishVO> list(Long categoryId) {
+        List<Dish> dishList = dishMapper.list(categoryId);
+        return dishList.stream().map(dish -> {
+            DishVO dishVO = new DishVO();
+            BeanUtils.copyProperties(dish, dishVO);
+            return dishVO;
+        }).toList();
+    }
+
 }
