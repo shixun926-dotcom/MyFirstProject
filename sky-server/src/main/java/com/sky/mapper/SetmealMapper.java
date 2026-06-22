@@ -55,4 +55,11 @@ public interface SetmealMapper {
      */
     SetmealVO getByIdWithSetmealDish(Long id);
 
+    /**
+     * 更新套餐数据
+     * @param setmeal
+     */
+    @AutoFill(value = OperationType.UPDATE)
+    void update(Setmeal setmeal);
+
 }
